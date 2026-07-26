@@ -7,6 +7,34 @@ import { ProductsList } from '../shared/components/ProductsList';
 
 type Props = { category: Category; title: string };
 
+const getPaginationRange = (
+  current: number,
+  total: number,
+): (number | '...')[] => {
+  const delta = 1;
+  const left = Math.max(2, current - delta);
+  const right = Math.min(total - 1, current + delta);
+  const range: (number | '...')[] = [1];
+
+  if (left > 2) {
+    range.push('...');
+  }
+
+  for (let i = left; i <= right; i++) {
+    range.push(i);
+  }
+
+  if (right < total - 1) {
+    range.push('...');
+  }
+
+  if (total > 1) {
+    range.push(total);
+  }
+
+  return range;
+};
+
 export const ProductsPage = ({ category, title }: Props) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -139,19 +167,23 @@ export const ProductsPage = ({ category, title }: Props) => {
           )}
           {pageCount > 1 && (
             <nav className="pagination" aria-label="Pagination">
-              {Array.from({ length: pageCount }, (_, index) => index + 1).map(
-                number => (
+              {getPaginationRange(page, pageCount).map((item, index) =>
+                item === '...' ? (
+                  <span className="pagination__dots" key={`dots-${index}`}>
+                    …
+                  </span>
+                ) : (
                   <button
                     type="button"
-                    className={number === page ? 'active' : ''}
-                    key={number}
+                    className={item === page ? 'active' : ''}
+                    key={item}
                     onClick={() =>
                       changeParams({
-                        page: number === 1 ? null : String(number),
+                        page: item === 1 ? null : String(item),
                       })
                     }
                   >
-                    {number}
+                    {item}
                   </button>
                 ),
               )}

@@ -1,15 +1,22 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import type { ProductDetails } from '../../types/ProductDetails';
-import { getProductDetails, getSuggestedProducts } from '../../api/products';
+import {
+  getProductDetails,
+  getProducts,
+  getSuggestedProducts,
+} from '../../api/products';
 import { Loader } from '../shared/components/Loader';
 import { ProductsList } from '../shared/components/ProductsList';
 import type { Product } from '../../types/Product';
+import { useCart } from '../shared/context/CartContext';
 
 export const ProductDetailsPage = () => {
   const { productId } = useParams<{ productId: string }>();
   const navigate = useNavigate();
+  const { addToCart } = useCart();
   const [product, setProduct] = useState<ProductDetails | null>(null);
+  const [shortProduct, setShortProduct] = useState<Product | null>(null);
   const [suggested, setSuggested] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [image, setImage] = useState('');
@@ -22,9 +29,12 @@ export const ProductDetailsPage = () => {
     }
 
     setIsLoading(true);
-    getProductDetails(productId)
-      .then(found => {
+    Promise.all([getProductDetails(productId), getProducts()])
+      .then(([found, allProducts]) => {
         setProduct(found);
+        setShortProduct(
+          allProducts.find(item => item.itemId === productId) ?? null,
+        );
         if (found) {
           setImage(found.images[0]);
           setColor(found.color);
@@ -49,6 +59,14 @@ export const ProductDetailsPage = () => {
 
   const imageUrl = (path: string) => `${import.meta.env.BASE_URL}${path}`;
 
+  const handleAddToCart = () => {
+    if (!shortProduct) {
+      return;
+    }
+
+    addToCart(shortProduct);
+  };
+
   return (
     <section className="page">
       <p className="breadcrumbs">
@@ -56,7 +74,11 @@ export const ProductDetailsPage = () => {
         <Link to={`/${product.category}`}>{product.category}</Link> /{' '}
         {product.name}
       </p>
-      <button type="button" onClick={() => navigate(-1)}>
+      <button
+        type="button"
+        className="back-button"
+        onClick={() => navigate(-1)}
+      >
         Back
       </button>
       <h1>{product.name}</h1>
@@ -78,31 +100,41 @@ export const ProductDetailsPage = () => {
         <div>
           <p>Available colors</p>
           {product.colorsAvailable.map(value => (
-            <label key={value}>
+            <label className="radio-option" key={value}>
               <input
                 type="radio"
                 name="color"
                 checked={color === value}
                 onChange={() => setColor(value)}
               />
+              <span className="radio-control" />
               {value}
             </label>
           ))}
           <p>Select capacity</p>
           {product.capacityAvailable.map(value => (
-            <label key={value}>
+            <label className="radio-option" key={value}>
               <input
                 type="radio"
                 name="capacity"
                 checked={capacity === value}
                 onChange={() => setCapacity(value)}
               />
+              <span className="radio-control" />
               {value}
             </label>
           ))}
           <h2>
             ${product.priceDiscount} <del>${product.priceRegular}</del>
           </h2>
+          <button
+            type="button"
+            className="add-to-cart"
+            disabled={!shortProduct}
+            onClick={handleAddToCart}
+          >
+            Add to cart
+          </button>
         </div>
       </div>
       <section>

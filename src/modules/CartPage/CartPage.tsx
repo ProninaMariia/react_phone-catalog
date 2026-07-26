@@ -26,7 +26,7 @@ export const CartPage = () => {
       {!cartItems.length ? (
         <p>Your cart is empty</p>
       ) : (
-        <>
+        <div className="cart-content">
           <div className="cart-list">
             {cartItems.map(({ id, product, quantity }) => (
               <article className="cart-item" key={id}>
@@ -70,7 +70,7 @@ export const CartPage = () => {
               Checkout
             </button>
           </div>
-        </>
+        </div>
       )}
     </section>
   );
