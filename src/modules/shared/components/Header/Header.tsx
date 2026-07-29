@@ -17,7 +17,7 @@ export const Header = () => {
     <header className={styles.header}>
       <div className={styles.left}>
         <NavLink to="/" className={styles.logo}>
-          Nice Gadgets
+          <span className={styles.logoText}>Nice Gadgets</span>
         </NavLink>
 
         <nav className={styles.nav}>
@@ -34,11 +34,27 @@ export const Header = () => {
       </div>
 
       <div className={styles.icons}>
-        <NavLink to="/favorites" className={getNavLinkClass}>
-          Favorites{favorites.length > 0 && ` (${favorites.length})`}
+        <NavLink
+          to="/favorites"
+          className={`${getNavLinkClass({ isActive: false })} ${styles.iconLink}`}
+          aria-label="Favorites"
+        >
+          <span className={styles.iconHeart}>
+            {favorites.length > 0 ? '♥' : '♡'}
+          </span>
+          {favorites.length > 0 && (
+            <span className={styles.badge}>{favorites.length}</span>
+          )}
         </NavLink>
-        <NavLink to="/cart" className={getNavLinkClass}>
-          Cart{totalQuantity > 0 && ` (${totalQuantity})`}
+        <NavLink
+          to="/cart"
+          className={`${getNavLinkClass({ isActive: false })} ${styles.iconLink}`}
+          aria-label="Cart"
+        >
+          <span className={styles.iconCart}>🛒</span>
+          {totalQuantity > 0 && (
+            <span className={styles.badge}>{totalQuantity}</span>
+          )}
         </NavLink>
       </div>
     </header>
