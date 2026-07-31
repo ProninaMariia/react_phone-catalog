@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useCart } from '../shared/context/CartContext';
 
 export const CartPage = () => {
@@ -22,28 +23,52 @@ export const CartPage = () => {
 
   return (
     <section className="page">
-      <h1>Cart</h1>
+      <p className="breadcrumbs">
+        <Link to="/">Home</Link> / Cart
+      </p>
+      <h1 className="page__title">Cart</h1>
       {!cartItems.length ? (
-        <p>Your cart is empty</p>
+        <div className="cart-empty">
+          <img
+            src={`${import.meta.env.BASE_URL}img/cart-is-empty.png`}
+            alt="Cart is empty"
+          />
+          <p>Your cart is empty</p>
+        </div>
       ) : (
         <div className="cart-content">
           <div className="cart-list">
             {cartItems.map(({ id, product, quantity }) => (
               <article className="cart-item" key={id}>
+                <button
+                  type="button"
+                  className="cart-item__close"
+                  aria-label={`Remove ${product.name} from cart`}
+                  onClick={() => removeFromCart(id)}
+                >
+                  ×
+                </button>
                 <img
                   src={`${import.meta.env.BASE_URL}${product.image}`}
                   alt={product.name}
+                  className="cart-item__image"
                 />
-                <h2>{product.name}</h2>
-                <div>
+                <Link
+                  to={`/product/${product.itemId}`}
+                  className="cart-item__name"
+                >
+                  {product.name}
+                </Link>
+                <div className="cart-item__quantity">
                   <button
                     type="button"
                     aria-label="Decrease quantity"
                     onClick={() => decrement(id)}
+                    disabled={quantity <= 1}
                   >
                     -
-                  </button>{' '}
-                  {quantity}{' '}
+                  </button>
+                  <span className="cart-item__quantity-value">{quantity}</span>
                   <button
                     type="button"
                     aria-label="Increase quantity"
@@ -52,23 +77,23 @@ export const CartPage = () => {
                     +
                   </button>
                 </div>
-                <strong>${product.price * quantity}</strong>
-                <button
-                  type="button"
-                  aria-label={`Remove ${product.name}`}
-                  onClick={() => removeFromCart(id)}
-                >
-                  ×
-                </button>
+                <strong className="cart-item__price">
+                  ${product.price * quantity}
+                </strong>
               </article>
             ))}
           </div>
           <div className="cart-total">
-            <p>{totalQuantity} items</p>
-            <h2>${totalPrice}</h2>
-            <button type="button" onClick={checkout}>
+            <p className="cart-total__count">{totalQuantity} items</p>
+            <h2 className="cart-total__price">${totalPrice}</h2>
+            <button
+              type="button"
+              className="cart-total__button"
+              onClick={checkout}
+            >
               Checkout
             </button>
+            <p className="cart-total__note">Tax is included</p>
           </div>
         </div>
       )}

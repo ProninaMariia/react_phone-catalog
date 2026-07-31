@@ -24,6 +24,7 @@ export const ProductCard = ({ product }: Props) => {
       >
         {isFavorite(product.itemId) ? '♥' : '♡'}
       </button>
+
       <Link to={`/product/${product.itemId}`} className={styles.imageLink}>
         <img
           src={`${import.meta.env.BASE_URL}${product.image}`}
@@ -35,13 +36,31 @@ export const ProductCard = ({ product }: Props) => {
         <Link to={`/product/${product.itemId}`}>{product.name}</Link>
       </h2>
 
-      <p>
+      <p className={styles.priceRow}>
         <strong>${product.price}</strong>
         {product.fullPrice !== product.price && <del>${product.fullPrice}</del>}
       </p>
 
+      <div className={styles.divider} />
+
+      <div className={styles.specs}>
+        <div className={styles.specRow}>
+          <span>Screen</span>
+          <span>{product.screen}</span>
+        </div>
+        <div className={styles.specRow}>
+          <span>Capacity</span>
+          <span>{product.capacity}</span>
+        </div>
+        <div className={styles.specRow}>
+          <span>RAM</span>
+          <span>{product.ram}</span>
+        </div>
+      </div>
+
       <button
         type="button"
+        className={`${styles.button} ${inCart ? styles.buttonActive : ''}`}
         disabled={inCart}
         onClick={() => addToCart(product)}
       >

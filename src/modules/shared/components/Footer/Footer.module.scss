@@ -6,22 +6,48 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
 
   max-width: 1200px;
   margin: 0 auto;
-  padding: 24px 16px;
+  padding: 24px 32px;
 }
 
 .logo {
-  font-size: 14px;
-  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   text-decoration: none;
   color: #0f1121;
 
   transition: color 0.2s ease-in-out;
-
   &:hover {
     color: #75767f;
+  }
+}
+
+.links {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.link {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #89939a;
+  transition: color 0.2s ease-in-out;
+
+  &:hover {
+    color: #313237;
   }
 }
 
@@ -36,17 +62,18 @@
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #0f1121;
+  color: #89939a;
 
   background: none;
-  border: 1px solid #0f1121;
-  border-radius: 4px;
+  border: 1px solid #e2e6e9;
   cursor: pointer;
 
-  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out,
+    border-color 0.2s ease-in-out;
 
   &:hover {
-    color: #fff;
-    background-color: #0f1121;
+    color: #313237;
+    border-color: #313237;
   }
 }
+

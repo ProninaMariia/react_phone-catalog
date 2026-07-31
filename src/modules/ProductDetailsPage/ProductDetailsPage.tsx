@@ -98,7 +98,7 @@ export const ProductDetailsPage = () => {
           </div>
         </div>
         <div>
-          <p>Available colors</p>
+          <p className="select-title">Available colors</p>
           {product.colorsAvailable.map(value => (
             <label className="radio-option" key={value}>
               <input
@@ -111,7 +111,7 @@ export const ProductDetailsPage = () => {
               {value}
             </label>
           ))}
-          <p>Select capacity</p>
+          <p className="select-title">Select capacity</p>
           {product.capacityAvailable.map(value => (
             <label className="radio-option" key={value}>
               <input
@@ -124,9 +124,31 @@ export const ProductDetailsPage = () => {
               {value}
             </label>
           ))}
-          <h2>
-            ${product.priceDiscount} <del>${product.priceRegular}</del>
-          </h2>
+
+          <div className="price-row">
+            <h2 className="price-current">${product.priceDiscount}</h2>
+            <del className="price-old">${product.priceRegular}</del>
+          </div>
+
+          <div className="main-specs">
+            <div className="spec-line">
+              <span>Screen</span>
+              <span>{product.screen}</span>
+            </div>
+            <div className="spec-line">
+              <span>Resolution</span>
+              <span>{product.resolution}</span>
+            </div>
+            <div className="spec-line">
+              <span>Processor</span>
+              <span>{product.processor}</span>
+            </div>
+            <div className="spec-line">
+              <span>RAM</span>
+              <span>{product.ram}</span>
+            </div>
+          </div>
+
           <button
             type="button"
             className="add-to-cart"

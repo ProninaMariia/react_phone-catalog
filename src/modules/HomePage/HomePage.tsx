@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getProducts } from '../../api/products';
 import type { Product } from '../../types/Product';
@@ -6,9 +6,18 @@ import { Loader } from '../shared/components/Loader';
 import { ProductsList } from '../shared/components/ProductsList';
 
 const banners = [
-  'img/banner-phones.png',
-  'img/banner-tablets.png',
-  'img/banner-accessories.png',
+  {
+    src: 'img/banner-phones.png',
+    alt: 'Phones promotion',
+  },
+  {
+    src: 'img/banner-tablets.png',
+    alt: 'Tablets promotion',
+  },
+  {
+    src: 'img/banner-accessories.png',
+    alt: 'Accessories promotion',
+  },
 ];
 
 const categoryMeta: Record<string, { title: string; image: string }> = {
@@ -30,20 +39,45 @@ export const HomePage = () => {
   const [activeSlide, setActiveSlide] = useState(0);
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState(false);
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+
+  const goToPrevSlide = useCallback(() => {
+    setActiveSlide(current => (current - 1 + banners.length) % banners.length);
+  }, []);
+
+  const goToNextSlide = useCallback(() => {
+    setActiveSlide(current => (current + 1) % banners.length);
+  }, []);
 
   useEffect(() => {
-    const timer = window.setInterval(
-      () => setActiveSlide(current => (current + 1) % banners.length),
-      5000,
-    );
+    const timer = window.setInterval(goToNextSlide, 5000);
 
     return () => window.clearInterval(timer);
-  }, []);
+  }, [goToNextSlide]);
+
   useEffect(() => {
     getProducts()
       .then(setProducts)
       .catch(() => setError(true));
   }, []);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    touchEndX.current = e.changedTouches[0].clientX;
+    const diff = touchStartX.current - touchEndX.current;
+
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) {
+        goToNextSlide();
+      } else {
+        goToPrevSlide();
+      }
+    }
+  };
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {
@@ -79,26 +113,20 @@ export const HomePage = () => {
 
       <h2 className="home__section-title">Welcome to Nice Gadgets!</h2>
 
-      <div className="slider">
+      <div
+        className="slider"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         <button
           type="button"
           aria-label="Previous slide"
-          onClick={() =>
-            setActiveSlide(
-              current => (current - 1 + banners.length) % banners.length,
-            )
-          }
+          onClick={goToPrevSlide}
         >
           ‹
         </button>
-        <img src={banners[activeSlide]} alt="Promotion" />
-        <button
-          type="button"
-          aria-label="Next slide"
-          onClick={() =>
-            setActiveSlide(current => (current + 1) % banners.length)
-          }
-        >
+        <img src={banners[activeSlide].src} alt={banners[activeSlide].alt} />
+        <button type="button" aria-label="Next slide" onClick={goToNextSlide}>
           ›
         </button>
         <div className="dots">
@@ -107,7 +135,7 @@ export const HomePage = () => {
               type="button"
               aria-label={`Show slide ${index + 1}`}
               className={index === activeSlide ? 'active' : ''}
-              key={banner}
+              key={banner.src}
               onClick={() => setActiveSlide(index)}
             />
           ))}
