@@ -80,35 +80,27 @@ export const HomePage = () => {
   };
 
   const hotPrices = useMemo(() => {
-    const seen = new Set<string>();
+    const wanted = [
+      'apple-iphone-11-pro-64gb-midnightgreen',
+      'apple-iphone-11-64gb-gold',
+      'apple-iphone-11-64gb-purple',
+      'apple-iphone-11-64gb-red',
+    ];
 
-    return [...products]
-      .sort(
-        (a, b) =>
-          (b.fullPrice - b.price) / b.fullPrice -
-          (a.fullPrice - a.price) / a.fullPrice,
-      )
-      .filter(p => {
-        const key = p.name.replace(/\s\d+(GB|TB)/gi, '').trim();
-
-        if (seen.has(key)) {
-          return false;
-        }
-
-        seen.add(key);
-
-        return true;
-      })
-      .slice(0, 4);
+    return products.filter(p => wanted.includes(p.itemId));
   }, [products]);
 
   const brandNew = useMemo(() => {
     const seen = new Set<string>();
 
     return [...products]
-      .sort((a, b) => b.year - a.year)
+      .filter(
+        p =>
+          p.category === 'phones' && p.itemId.startsWith('apple-iphone-14-pro'),
+      )
+      .sort((a, b) => a.capacity.length - b.capacity.length)
       .filter(p => {
-        const key = p.name.replace(/\s\d+(GB|TB)/gi, '').trim();
+        const key = `${p.capacity}-${p.color}`;
 
         if (seen.has(key)) {
           return false;
