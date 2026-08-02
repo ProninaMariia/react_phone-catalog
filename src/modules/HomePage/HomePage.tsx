@@ -7,16 +7,16 @@ import { ProductsList } from '../shared/components/ProductsList';
 
 const banners = [
   {
+    src: 'img/banner-main.png',
+    alt: 'Promotion',
+  },
+  {
     src: 'img/banner-phones.png',
     alt: 'Phones promotion',
   },
   {
     src: 'img/banner-tablets.png',
     alt: 'Tablets promotion',
-  },
-  {
-    src: 'img/banner-accessories.png',
-    alt: 'Accessories promotion',
   },
 ];
 
@@ -99,11 +99,11 @@ export const HomePage = () => {
     () =>
       [...products]
         .sort((a, b) => b.fullPrice - b.price - (a.fullPrice - a.price))
-        .slice(0, 8),
+        .slice(0, 4),
     [products],
   );
   const brandNew = useMemo(
-    () => [...products].sort((a, b) => b.year - a.year).slice(0, 8),
+    () => [...products].sort((a, b) => b.year - a.year).slice(0, 4),
     [products],
   );
 
@@ -143,13 +143,11 @@ export const HomePage = () => {
       </div>
 
       <section>
-        <h2 className="home__section-title">Hot prices</h2>
-        {error ? (
-          <p className="home__error">Something went wrong</p>
-        ) : products.length ? (
-          <ProductsList products={hotPrices} />
+        <h2 className="home__section-title">Brand new models</h2>
+        {products.length ? (
+          <ProductsList products={brandNew} />
         ) : (
-          <Loader />
+          !error && <Loader />
         )}
       </section>
 
@@ -182,11 +180,13 @@ export const HomePage = () => {
       </section>
 
       <section>
-        <h2 className="home__section-title">Brand new</h2>
-        {products.length ? (
-          <ProductsList products={brandNew} />
+        <h2 className="home__section-title">Hot prices</h2>
+        {error ? (
+          <p className="home__error">Something went wrong</p>
+        ) : products.length ? (
+          <ProductsList products={hotPrices} />
         ) : (
-          !error && <Loader />
+          <Loader />
         )}
       </section>
     </div>

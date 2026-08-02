@@ -6,11 +6,12 @@ export const FavoritesPage = () => {
 
   return (
     <section className="page">
-      <h1>Favorites</h1>
+      <h1 className="page__title">Favorites</h1>
+      <p className="page__count">{favorites.length} items</p>
       {favorites.length ? (
         <ProductsList products={favorites} />
       ) : (
-        <p>You have no favorite products yet</p>
+        <p className="page__empty">You have no favorite products yet</p>
       )}
     </section>
   );

@@ -97,6 +97,9 @@ export const ProductsPage = ({ category, title }: Props) => {
   return (
     <div className="page">
       <h1 className="page__title">{title}</h1>
+      {!isLoading && !hasError && products.length > 0 && (
+        <p className="page__count">{products.length} models</p>
+      )}
       {isLoading && <Loader />}
       {!isLoading && hasError && (
         <div>

@@ -10,11 +10,13 @@ import { Loader } from '../shared/components/Loader';
 import { ProductsList } from '../shared/components/ProductsList';
 import type { Product } from '../../types/Product';
 import { useCart } from '../shared/context/CartContext';
+import { useFavorites } from '../shared/context/FavoritesContext';
 
 export const ProductDetailsPage = () => {
   const { productId } = useParams<{ productId: string }>();
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { toggleFavorite, isFavorite } = useFavorites();
   const [product, setProduct] = useState<ProductDetails | null>(null);
   const [shortProduct, setShortProduct] = useState<Product | null>(null);
   const [suggested, setSuggested] = useState<Product[]>([]);
@@ -81,7 +83,7 @@ export const ProductDetailsPage = () => {
       >
         Back
       </button>
-      <h1>{product.name}</h1>
+      <h1 className="page__title">{product.name}</h1>
       <div className="details">
         <div>
           <img
@@ -149,17 +151,34 @@ export const ProductDetailsPage = () => {
             </div>
           </div>
 
-          <button
-            type="button"
-            className="add-to-cart"
-            disabled={!shortProduct}
-            onClick={handleAddToCart}
-          >
-            Add to cart
-          </button>
+          <div className="details-actions">
+            <button
+              type="button"
+              className="add-to-cart"
+              disabled={!shortProduct}
+              onClick={handleAddToCart}
+            >
+              Add to cart
+            </button>
+            {shortProduct && (
+              <button
+                type="button"
+                className={`details-favorite ${
+                  isFavorite(shortProduct.itemId)
+                    ? 'details-favorite-active'
+                    : ''
+                }`}
+                aria-label="Toggle favorite"
+                aria-pressed={isFavorite(shortProduct.itemId)}
+                onClick={() => toggleFavorite(shortProduct)}
+              >
+                {isFavorite(shortProduct.itemId) ? '♥' : '♡'}
+              </button>
+            )}
+          </div>
         </div>
       </div>
-      <section>
+      <section className="details-section details-about">
         <h2>About</h2>
         {product.description.map(block => (
           <article key={block.title}>
@@ -170,12 +189,35 @@ export const ProductDetailsPage = () => {
           </article>
         ))}
       </section>
-      <section>
+      <section className="details-section details-specs">
         <h2>Tech specs</h2>
-        <p>Screen: {product.screen}</p>
-        <p>Resolution: {product.resolution}</p>
-        <p>Processor: {product.processor}</p>
-        <p>RAM: {product.ram}</p>
+        <p>
+          <span>Screen</span> <strong>{product.screen}</strong>
+        </p>
+        <p>
+          <span>Resolution</span> <strong>{product.resolution}</strong>
+        </p>
+        <p>
+          <span>Processor</span> <strong>{product.processor}</strong>
+        </p>
+        <p>
+          <span>RAM</span> <strong>{product.ram}</strong>
+        </p>
+        {product.camera && (
+          <p>
+            <span>Camera</span> <strong>{product.camera}</strong>
+          </p>
+        )}
+        {product.zoom && (
+          <p>
+            <span>Zoom</span> <strong>{product.zoom}</strong>
+          </p>
+        )}
+        {product.cell.length > 0 && (
+          <p>
+            <span>Cell</span> <strong>{product.cell.join(', ')}</strong>
+          </p>
+        )}
       </section>
       {suggested.length > 0 && (
         <section>

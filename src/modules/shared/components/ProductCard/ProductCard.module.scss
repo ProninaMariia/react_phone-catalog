@@ -1,5 +1,4 @@
 .card {
-  position: relative;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -71,12 +70,20 @@
   }
 }
 
-/* Button that adds to cart */
+/* Actions row: Add to cart + favorite */
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 40px;
+  gap: 8px;
+  margin-top: auto;
+}
+
 .button {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 40px;
+  padding: 0 8px;
   color: #fff;
   text-decoration: none;
   cursor: pointer;
@@ -100,17 +107,31 @@
   color: #313237;
   background: #fff;
   border: 1px solid #e2e6ee;
+
   &:hover {
     background-color: #fff;
   }
 }
 
 .favorite {
-  position: absolute;
-  z-index: 1;
-  top: 16px;
-  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
   width: 40px;
-  font-size: 24px;
+  font-size: 20px;
+  color: #313237;
+  cursor: pointer;
+  background: #fff;
+  border: 1px solid #b4bdc3;
+  transition: border-color 0.3s ease;
+
+  &:hover {
+    border-color: #313237;
+  }
+}
+
+.favoriteActive {
+  color: #eb5757;
 }
 
