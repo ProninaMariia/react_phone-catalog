@@ -80,37 +80,40 @@ export const HomePage = () => {
   };
 
   const hotPrices = useMemo(() => {
-    const wanted = [
-      'apple-iphone-11-pro-64gb-midnightgreen',
-      'apple-iphone-11-64gb-gold',
-      'apple-iphone-11-64gb-purple',
-      'apple-iphone-11-64gb-red',
+    const wanted: Array<[string, string]> = [
+      [
+        'apple-iphone-11-pro-64gb-midnightgreen',
+        'img/hot-prices/midnightgreen.png',
+      ],
+      ['apple-iphone-11-pro-max-64gb-gold', 'img/hot-prices/gold.png'],
+      ['apple-iphone-11-64gb-purple', 'img/hot-prices/purple.png'],
+      ['apple-iphone-11-64gb-red', 'img/hot-prices/red.png'],
     ];
 
-    return products.filter(p => wanted.includes(p.itemId));
+    return wanted
+      .map(([id, image]) => {
+        const product = products.find(p => p.itemId === id);
+
+        return product ? { ...product, image } : null;
+      })
+      .filter((p): p is Product => Boolean(p));
   }, [products]);
 
   const brandNew = useMemo(() => {
-    const seen = new Set<string>();
+    const wanted: Array<[string, string]> = [
+      ['apple-iphone-14-pro-256gb-silver', 'img/brand-new/silver.png'],
+      ['apple-iphone-14-pro-256gb-deeppurple', 'img/brand-new/deeppurple.png'],
+      ['apple-iphone-14-pro-128gb-gold', 'img/brand-new/gold.png'],
+      ['apple-iphone-14-pro-256gb-productred', 'img/brand-new/productred.png'],
+    ];
 
-    return [...products]
-      .filter(
-        p =>
-          p.category === 'phones' && p.itemId.startsWith('apple-iphone-14-pro'),
-      )
-      .sort((a, b) => a.capacity.length - b.capacity.length)
-      .filter(p => {
-        const key = `${p.capacity}-${p.color}`;
+    return wanted
+      .map(([id, image]) => {
+        const product = products.find(p => p.itemId === id);
 
-        if (seen.has(key)) {
-          return false;
-        }
-
-        seen.add(key);
-
-        return true;
+        return product ? { ...product, image } : null;
       })
-      .slice(0, 4);
+      .filter((p): p is Product => Boolean(p));
   }, [products]);
 
   const categoryCounts = useMemo(() => {
