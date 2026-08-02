@@ -79,6 +79,48 @@ export const HomePage = () => {
     }
   };
 
+  const hotPrices = useMemo(() => {
+    const seen = new Set<string>();
+
+    return [...products]
+      .sort(
+        (a, b) =>
+          (b.fullPrice - b.price) / b.fullPrice -
+          (a.fullPrice - a.price) / a.fullPrice,
+      )
+      .filter(p => {
+        const key = p.name.replace(/\s\d+(GB|TB)/gi, '').trim();
+
+        if (seen.has(key)) {
+          return false;
+        }
+
+        seen.add(key);
+
+        return true;
+      })
+      .slice(0, 4);
+  }, [products]);
+
+  const brandNew = useMemo(() => {
+    const seen = new Set<string>();
+
+    return [...products]
+      .sort((a, b) => b.year - a.year)
+      .filter(p => {
+        const key = p.name.replace(/\s\d+(GB|TB)/gi, '').trim();
+
+        if (seen.has(key)) {
+          return false;
+        }
+
+        seen.add(key);
+
+        return true;
+      })
+      .slice(0, 4);
+  }, [products]);
+
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {
       phones: 0,
@@ -94,18 +136,6 @@ export const HomePage = () => {
 
     return counts;
   }, [products]);
-
-  const hotPrices = useMemo(
-    () =>
-      [...products]
-        .sort((a, b) => b.fullPrice - b.price - (a.fullPrice - a.price))
-        .slice(0, 4),
-    [products],
-  );
-  const brandNew = useMemo(
-    () => [...products].sort((a, b) => b.year - a.year).slice(0, 4),
-    [products],
-  );
 
   return (
     <div className="page home">
