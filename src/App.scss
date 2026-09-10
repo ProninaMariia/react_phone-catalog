@@ -498,14 +498,6 @@ a {
 }
 
 @media (max-width: 768px) {
-  .page {
-    padding: 16px;
-  }
-
-  .categories {
-    grid-template-columns: 1fr;
-  }
-
   .cart-content {
     flex-direction: column;
   }
@@ -534,6 +526,13 @@ a {
 }
 
 @media (max-width: 639px) {
+  .page {
+    padding: 16px;
+  }
+
+  .categories {
+    grid-template-columns: 1fr;
+  }
 
   .home__section-title {
     font-size: 24px;

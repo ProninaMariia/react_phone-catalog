@@ -328,23 +328,31 @@
 
 @media (max-width: 1199px) {
   .main {
-    grid-template-columns: 80px minmax(0, 1fr);
-    gap: 16px;
+    grid-template-columns: 64px minmax(0, 1fr) minmax(0, 288px);
+    gap: 16px 24px;
   }
 
-  .options {
-    grid-column: 1 / -1;
+  .thumb {
+    width: 64px;
+    height: 64px;
   }
 
   .info {
-    grid-template-columns: 1fr;
     gap: 32px;
+  }
+}
+
+/* Below this the two text columns get too narrow to read comfortably. */
+@media (max-width: 900px) {
+  .info {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 639px) {
   .main {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .mainImage {
