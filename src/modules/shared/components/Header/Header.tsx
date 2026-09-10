@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useFavorites } from '../../context/FavoritesContext';
+import { HeartIcon, HeartFilledIcon, CartIcon } from '../Icons/Icons';
+import { Search } from '../Search';
 import styles from './Header.module.scss';
 
 const getNavLinkClass = ({ isActive }: { isActive: boolean }) => {
@@ -24,10 +26,17 @@ export const Header = () => {
       <header className={styles.header}>
         <div className={styles.left}>
           <NavLink to="/" className={styles.logo} onClick={closeMenu}>
-            <span className={styles.logoText}>Nice Gadgets</span>
+            <img
+              src={`${import.meta.env.BASE_URL}img/Logo.png`}
+              alt="Nice Gadgets logo"
+              className={styles.logoImg}
+            />
           </NavLink>
 
           <nav className={styles.nav}>
+            <NavLink to="/" end className={getNavLinkClass}>
+              Home
+            </NavLink>
             <NavLink to="/phones" className={getNavLinkClass}>
               Phones
             </NavLink>
@@ -40,6 +49,10 @@ export const Header = () => {
           </nav>
         </div>
 
+        <div className={styles.searchSlot}>
+          <Search key={location.pathname} />
+        </div>
+
         <div className={styles.icons}>
           <NavLink
             to="/favorites"
@@ -47,14 +60,20 @@ export const Header = () => {
             aria-label="Favorites"
           >
             <span className={styles.iconHeart}>
-              {favorites.length > 0 ? '♥' : '♡'}
+              {favorites.length > 0 ? (
+                <HeartFilledIcon size={20} />
+              ) : (
+                <HeartIcon size={20} />
+              )}
             </span>
             {favorites.length > 0 && (
               <span className={styles.badge}>{favorites.length}</span>
             )}
           </NavLink>
           <NavLink to="/cart" className={styles.iconLink} aria-label="Cart">
-            <span className={styles.iconCart}>🛒</span>
+            <span className={styles.iconCart}>
+              <CartIcon size={20} />
+            </span>
             {totalQuantity > 0 && (
               <span className={styles.badge}>{totalQuantity}</span>
             )}

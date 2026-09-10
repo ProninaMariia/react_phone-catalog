@@ -23,16 +23,32 @@ export const App = () => {
               <Route path="/" element={<HomePage />} />
               <Route
                 path="/phones"
-                element={<ProductsPage category="phones" title="Phones" />}
+                element={
+                  <ProductsPage
+                    category="phones"
+                    title="Mobile phones"
+                    label="Phones"
+                  />
+                }
               />
               <Route
                 path="/tablets"
-                element={<ProductsPage category="tablets" title="Tablets" />}
+                element={
+                  <ProductsPage
+                    category="tablets"
+                    title="Tablets"
+                    label="Tablets"
+                  />
+                }
               />
               <Route
                 path="/accessories"
                 element={
-                  <ProductsPage category="accessories" title="Accessories" />
+                  <ProductsPage
+                    category="accessories"
+                    title="Accessories"
+                    label="Accessories"
+                  />
                 }
               />
               <Route

@@ -2,10 +2,24 @@ import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { Category, Product } from '../../types/Product';
 import { getProductsByCategory } from '../../api/products';
+import { Breadcrumbs } from '../shared/components/Breadcrumbs';
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+} from '../shared/components/Icons/Icons';
 import { Loader } from '../shared/components/Loader';
 import { ProductsList } from '../shared/components/ProductsList';
 
-type Props = { category: Category; title: string };
+type Props = {
+  category: Category;
+  /** Page heading, e.g. "Mobile phones" — the wording used in the design. */
+  title: string;
+  /** Short name for breadcrumbs and empty states, e.g. "Phones". */
+  label: string;
+};
+
+/** Matches the catalog layout in Figma: four rows of four cards. */
+const DEFAULT_PER_PAGE = '16';
 
 const getPaginationRange = (
   current: number,
@@ -35,15 +49,18 @@ const getPaginationRange = (
   return range;
 };
 
-export const ProductsPage = ({ category, title }: Props) => {
+export const ProductsPage = ({ category, title, label }: Props) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  const sort = searchParams.get('sort') || 'age';
+
+  // The URL is the single source of truth: the header Search writes ?query
+  // into it, so the page must read the params rather than mirror them.
   const query = searchParams.get('query') || '';
-  const perPage = searchParams.get('perPage') || 'all';
-  const requestedPage = Math.max(1, Number(searchParams.get('page')) || 1);
+  const sort = searchParams.get('sort') || 'age';
+  const perPage = searchParams.get('perPage') || DEFAULT_PER_PAGE;
+  const page = Math.max(1, Number(searchParams.get('page')) || 1);
 
   const loadProducts = () => {
     setIsLoading(true);
@@ -73,14 +90,16 @@ export const ProductsPage = ({ category, title }: Props) => {
       return b.year - a.year;
     });
   }, [products, query, sort]);
+
   const pageSize =
     perPage === 'all' ? filteredProducts.length || 1 : Number(perPage);
   const pageCount = Math.ceil(filteredProducts.length / pageSize);
-  const page = Math.min(requestedPage, Math.max(1, pageCount));
+  const safePage = Math.min(page, Math.max(1, pageCount));
   const shownProducts = filteredProducts.slice(
-    (page - 1) * pageSize,
-    page * pageSize,
+    (safePage - 1) * pageSize,
+    safePage * pageSize,
   );
+
   const changeParams = (changes: Record<string, string | null>) => {
     const next = new URLSearchParams(searchParams);
 
@@ -91,11 +110,14 @@ export const ProductsPage = ({ category, title }: Props) => {
         next.set(key, value);
       }
     });
+
     setSearchParams(next);
   };
 
   return (
     <div className="page">
+      <Breadcrumbs items={[{ label }]} />
+
       <h1 className="page__title">{title}</h1>
       {!isLoading && !hasError && products.length > 0 && (
         <p className="page__count">{products.length} models</p>
@@ -110,20 +132,12 @@ export const ProductsPage = ({ category, title }: Props) => {
         </div>
       )}
       {!isLoading && !hasError && products.length === 0 && (
-        <p>There are no {title.toLowerCase()} yet</p>
+        <p>There are no {label.toLowerCase()} yet</p>
       )}
       {!isLoading && !hasError && products.length > 0 && (
         <>
           <div className="catalog-controls">
-            <input
-              type="search"
-              value={query}
-              placeholder="Search"
-              onChange={event =>
-                changeParams({ query: event.target.value || null, page: null })
-              }
-            />
-            <label>
+            <label className="catalog-controls__sort">
               Sort by{' '}
               <select
                 value={sort}
@@ -148,7 +162,7 @@ export const ProductsPage = ({ category, title }: Props) => {
                   onChange={event =>
                     changeParams({
                       perPage:
-                        event.target.value === 'all'
+                        event.target.value === DEFAULT_PER_PAGE
                           ? null
                           : event.target.value,
                       page: null,
@@ -166,11 +180,24 @@ export const ProductsPage = ({ category, title }: Props) => {
           {filteredProducts.length ? (
             <ProductsList products={shownProducts} />
           ) : (
-            <p>There are no {title.toLowerCase()} matching the query</p>
+            <p>There are no {label.toLowerCase()} matching the query</p>
           )}
           {pageCount > 1 && (
             <nav className="pagination" aria-label="Pagination">
-              {getPaginationRange(page, pageCount).map((item, index) =>
+              <button
+                type="button"
+                aria-label="Previous page"
+                disabled={safePage === 1}
+                onClick={() =>
+                  changeParams({
+                    page: safePage - 1 === 1 ? null : String(safePage - 1),
+                  })
+                }
+              >
+                <ArrowLeftIcon size={14} />
+              </button>
+
+              {getPaginationRange(safePage, pageCount).map((item, index) =>
                 item === '...' ? (
                   <span className="pagination__dots" key={`dots-${index}`}>
                     …
@@ -178,7 +205,7 @@ export const ProductsPage = ({ category, title }: Props) => {
                 ) : (
                   <button
                     type="button"
-                    className={item === page ? 'active' : ''}
+                    className={item === safePage ? 'active' : ''}
                     key={item}
                     onClick={() =>
                       changeParams({
@@ -190,6 +217,15 @@ export const ProductsPage = ({ category, title }: Props) => {
                   </button>
                 ),
               )}
+
+              <button
+                type="button"
+                aria-label="Next page"
+                disabled={safePage === pageCount}
+                onClick={() => changeParams({ page: String(safePage + 1) })}
+              >
+                <ArrowRightIcon size={14} />
+              </button>
             </nav>
           )}
         </>

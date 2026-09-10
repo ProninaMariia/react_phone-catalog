@@ -2,6 +2,27 @@ import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import type { Product } from '../../../types/Product';
 import type { CartItem } from '../../../types/CartItem';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { isProduct } from '../helpers/isProduct';
+
+const sanitizeCart = (parsed: unknown): CartItem[] => {
+  if (!Array.isArray(parsed)) {
+    return [];
+  }
+
+  return parsed.filter((entry): entry is CartItem => {
+    if (!entry || typeof entry !== 'object') {
+      return false;
+    }
+
+    const item = entry as Partial<CartItem>;
+
+    return (
+      typeof item.id === 'string' &&
+      typeof item.quantity === 'number' &&
+      isProduct(item.product)
+    );
+  });
+};
 
 interface CartContextValue {
   cartItems: CartItem[];
@@ -18,7 +39,11 @@ interface CartContextValue {
 const CartContext = createContext<CartContextValue | null>(null);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [cartItems, setCartItems] = useLocalStorage<CartItem[]>('cart', []);
+  const [cartItems, setCartItems] = useLocalStorage<CartItem[]>(
+    'cart',
+    [],
+    sanitizeCart,
+  );
 
   const addToCart = (product: Product) => {
     setCartItems(prev => {

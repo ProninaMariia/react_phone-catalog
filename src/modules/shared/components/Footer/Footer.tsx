@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { ArrowUpIcon } from '../Icons/Icons';
 import styles from './Footer.module.scss';
 
 export const Footer = () => {
@@ -14,7 +15,11 @@ export const Footer = () => {
     <footer className={styles.footerWrapper}>
       <div className={styles.footer}>
         <Link to="/" className={styles.logo} onClick={goToHome}>
-          Nice Gadgets
+          <img
+            src={`${import.meta.env.BASE_URL}img/Logo.png`}
+            alt="Nice Gadgets logo"
+            className={styles.logoImg}
+          />
         </Link>
 
         <div className={styles.links}>
@@ -34,13 +39,17 @@ export const Footer = () => {
           </a>
         </div>
 
-        <button
-          type="button"
-          className={styles.backToTop}
-          onClick={scrollToTop}
-        >
-          Back to top ↑
-        </button>
+        <div className={styles.backToTop}>
+          <span className={styles.backToTopLabel}>Back to top</span>
+          <button
+            type="button"
+            className={styles.backToTopButton}
+            aria-label="Back to top"
+            onClick={scrollToTop}
+          >
+            <ArrowUpIcon size={16} />
+          </button>
+        </div>
       </div>
     </footer>
   );

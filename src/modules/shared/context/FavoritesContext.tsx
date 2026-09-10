@@ -1,6 +1,10 @@
 import { createContext, useContext, type ReactNode } from 'react';
 import type { Product } from '../../../types/Product';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { isProduct } from '../helpers/isProduct';
+
+const sanitizeFavorites = (parsed: unknown): Product[] =>
+  Array.isArray(parsed) ? parsed.filter(isProduct) : [];
 
 interface FavoritesContextValue {
   favorites: Product[];
@@ -11,7 +15,11 @@ interface FavoritesContextValue {
 const FavoritesContext = createContext<FavoritesContextValue | null>(null);
 
 export const FavoritesProvider = ({ children }: { children: ReactNode }) => {
-  const [favorites, setFavorites] = useLocalStorage<Product[]>('favorites', []);
+  const [favorites, setFavorites] = useLocalStorage<Product[]>(
+    'favorites',
+    [],
+    sanitizeFavorites,
+  );
 
   const isFavorite = (itemId: string) => {
     return favorites.some(product => product.itemId === itemId);

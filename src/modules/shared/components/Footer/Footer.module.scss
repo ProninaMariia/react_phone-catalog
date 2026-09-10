@@ -17,18 +17,18 @@
 .logo {
   display: flex;
   align-items: center;
-  gap: 8px;
 
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  text-decoration: none;
-  color: #0f1121;
-
-  transition: color 0.2s ease-in-out;
+  transition: opacity 0.2s ease-in-out;
   &:hover {
-    color: #75767f;
+    opacity: 0.7;
   }
+}
+
+.logoImg {
+  display: block;
+  height: 32px;
+  width: auto;
+  object-fit: contain;
 }
 
 .links {
@@ -54,26 +54,38 @@
 .backToTop {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 16px;
+}
 
-  padding: 8px 16px;
-
+.backToTopLabel {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.04em;
-  text-transform: uppercase;
   color: #89939a;
+  transition: color 0.2s ease-in-out;
+}
 
+.backToTopButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+
+  color: #313237;
   background: none;
-  border: 1px solid #e2e6e9;
+  border: 1px solid #b4bdc3;
   cursor: pointer;
 
-  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out,
-    border-color 0.2s ease-in-out;
+  transition: border-color 0.2s ease-in-out;
+}
 
-  &:hover {
-    color: #313237;
-    border-color: #313237;
-  }
+.backToTop:hover .backToTopLabel {
+  color: #313237;
+}
+
+.backToTop:hover .backToTopButton {
+  border-color: #313237;
 }
 

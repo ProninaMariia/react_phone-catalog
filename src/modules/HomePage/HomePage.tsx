@@ -1,24 +1,30 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getProducts } from '../../api/products';
 import type { Product } from '../../types/Product';
 import { Loader } from '../shared/components/Loader';
-import { ProductsList } from '../shared/components/ProductsList';
+import { ProductsSlider } from '../shared/components/ProductsSlider';
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+} from '../shared/components/Icons/Icons';
 
 const banners = [
   {
     src: 'img/banner-main.png',
-    alt: 'Promotion',
+    alt: 'iPhone 14 Pro is now available in our store',
   },
   {
-    src: 'img/banner-phones.png',
-    alt: 'Phones promotion',
+    src: 'img/banner-slide-2.png',
+    alt: 'iPhone 11 in every colour',
   },
   {
-    src: 'img/banner-tablets.png',
-    alt: 'Tablets promotion',
+    src: 'img/banner-slide-3.png',
+    alt: 'Cases, wallets and MagSafe accessories',
   },
 ];
+
+const SLIDE_INTERVAL = 5000;
 
 const categoryMeta: Record<string, { title: string; image: string }> = {
   phones: {
@@ -36,25 +42,9 @@ const categoryMeta: Record<string, { title: string; image: string }> = {
 };
 
 export const HomePage = () => {
-  const [activeSlide, setActiveSlide] = useState(0);
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState(false);
-  const touchStartX = useRef(0);
-  const touchEndX = useRef(0);
-
-  const goToPrevSlide = useCallback(() => {
-    setActiveSlide(current => (current - 1 + banners.length) % banners.length);
-  }, []);
-
-  const goToNextSlide = useCallback(() => {
-    setActiveSlide(current => (current + 1) % banners.length);
-  }, []);
-
-  useEffect(() => {
-    const timer = window.setInterval(goToNextSlide, 5000);
-
-    return () => window.clearInterval(timer);
-  }, [goToNextSlide]);
+  const [activeSlide, setActiveSlide] = useState(0);
 
   useEffect(() => {
     getProducts()
@@ -62,21 +52,16 @@ export const HomePage = () => {
       .catch(() => setError(true));
   }, []);
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
+  useEffect(() => {
+    const timerId = window.setInterval(() => {
+      setActiveSlide(prev => (prev + 1) % banners.length);
+    }, SLIDE_INTERVAL);
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    touchEndX.current = e.changedTouches[0].clientX;
-    const diff = touchStartX.current - touchEndX.current;
+    return () => window.clearInterval(timerId);
+  }, []);
 
-    if (Math.abs(diff) > 50) {
-      if (diff > 0) {
-        goToNextSlide();
-      } else {
-        goToPrevSlide();
-      }
-    }
+  const goToSlide = (index: number) => () => {
+    setActiveSlide((index + banners.length) % banners.length);
   };
 
   const hotPrices = useMemo(() => {
@@ -136,48 +121,71 @@ export const HomePage = () => {
     <div className="page home">
       <h1 className="visually-hidden">Product Catalog</h1>
 
-      <h2 className="home__section-title">Welcome to Nice Gadgets!</h2>
+      <h2 className="home__section-title">Welcome to Nice Gadgets store!</h2>
 
-      <div
-        className="slider"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
+      <div className="slider">
         <button
           type="button"
+          className="slider__button"
           aria-label="Previous slide"
-          onClick={goToPrevSlide}
+          onClick={goToSlide(activeSlide - 1)}
         >
-          ‹
+          <ArrowLeftIcon size={16} />
         </button>
-        <img src={banners[activeSlide].src} alt={banners[activeSlide].alt} />
-        <button type="button" aria-label="Next slide" onClick={goToNextSlide}>
-          ›
+
+        <div className="slider__viewport">
+          <div
+            className="slider__track"
+            style={{ transform: `translateX(-${activeSlide * 100}%)` }}
+          >
+            {banners.map(banner => (
+              <img
+                key={banner.src}
+                src={`${import.meta.env.BASE_URL}${banner.src}`}
+                alt={banner.alt}
+                className="slider__image"
+              />
+            ))}
+          </div>
+        </div>
+
+        <button
+          type="button"
+          className="slider__button"
+          aria-label="Next slide"
+          onClick={goToSlide(activeSlide + 1)}
+        >
+          <ArrowRightIcon size={16} />
         </button>
+
         <div className="dots">
           {banners.map((banner, index) => (
             <button
-              type="button"
-              aria-label={`Show slide ${index + 1}`}
-              className={index === activeSlide ? 'active' : ''}
               key={banner.src}
-              onClick={() => setActiveSlide(index)}
+              type="button"
+              className={index === activeSlide ? 'active' : undefined}
+              aria-label={`Go to slide ${index + 1}`}
+              aria-current={index === activeSlide}
+              onClick={goToSlide(index)}
             />
           ))}
         </div>
       </div>
 
-      <section>
-        <h2 className="home__section-title">Brand new models</h2>
-        {products.length ? (
-          <ProductsList products={brandNew} />
-        ) : (
-          !error && <Loader />
-        )}
-      </section>
+      {products.length ? (
+        <ProductsSlider
+          title="Brand new models"
+          products={brandNew}
+          withDiscount={false}
+        />
+      ) : (
+        !error && <Loader />
+      )}
 
-      <section>
-        <h2 className="home__section-title">Shop by category</h2>
+      <section className="home__section">
+        <div className="section-topline">
+          <h2 className="home__section-title">Shop by category</h2>
+        </div>
         <div className="categories">
           {(['phones', 'tablets', 'accessories'] as const).map(category => {
             const meta = categoryMeta[category];
@@ -191,7 +199,7 @@ export const HomePage = () => {
               >
                 <div className="category-card__image-wrapper">
                   <img
-                    src={meta.image}
+                    src={`${import.meta.env.BASE_URL}${meta.image}`}
                     alt={meta.title}
                     className="category-card__image"
                   />
@@ -204,16 +212,9 @@ export const HomePage = () => {
         </div>
       </section>
 
-      <section>
-        <h2 className="home__section-title">Hot prices</h2>
-        {error ? (
-          <p className="home__error">Something went wrong</p>
-        ) : products.length ? (
-          <ProductsList products={hotPrices} />
-        ) : (
-          <Loader />
-        )}
-      </section>
+      {products.length > 0 && (
+        <ProductsSlider title="Hot prices" products={hotPrices} />
+      )}
     </div>
   );
 };

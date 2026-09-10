@@ -16,6 +16,12 @@ body {
   font-family: Mont, Arial, sans-serif;
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 button,
 input,
 select {
@@ -73,6 +79,7 @@ a {
 .catalog-controls input,
 .catalog-controls select {
   padding: 10px 12px;
+  font-family: inherit;
   font-size: 14px;
   color: #313237;
   background-color: #fff;
@@ -80,6 +87,24 @@ a {
   border-radius: 8px;
   outline: none;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.catalog-controls__sort select {
+  min-width: 176px;
+}
+
+.catalog-controls select {
+  min-width: 136px;
+  padding-right: 36px;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='m4 6 4 4 4-4' stroke='%23313237' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+.catalog-controls select:hover {
+  border-color: #313237;
 }
 
 .catalog-controls :where(input):focus,
@@ -90,6 +115,7 @@ a {
 
 .pagination {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   gap: 8px;
@@ -97,11 +123,16 @@ a {
 }
 
 .pagination button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   min-width: 32px;
   min-height: 32px;
+  color: #313237;
   cursor: pointer;
   border: 1px solid #e2e6ee;
   background: #fff;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
 }
 
 .pagination .active {
@@ -283,185 +314,8 @@ a {
   color: #89939a;
 }
 
-.details {
-  display: grid;
-  grid-template-columns: minmax(200px, 1fr) 1fr;
-  gap: 32px;
-  margin: 24px 0;
-}
-
-.main-image {
-  width: 100%;
-  max-height: 420px;
-  object-fit: contain;
-}
-
-.thumbnails img {
-  width: 60px;
-  height: 60px;
-  object-fit: contain;
-}
-
-.thumbnails button {
-  background: #fff;
-  border: 1px solid #e2e6ee;
-}
-
-.details-section {
-  margin-top: 64px;
-}
-
-.details-section h2 {
-  margin: 0 0 16px;
-  font-size: 22px;
-  font-weight: 800;
-  color: #313237;
-}
-
-.details-about article h3 {
-  margin: 24px 0 16px;
-  font-size: 20px;
-  font-weight: 700;
-  color: #313237;
-}
-
-.details-about :where(article) p {
-  margin: 0 0 16px;
-  font-size: 14px;
-  line-height: 1.5;
-  color: #89939a;
-}
-
-.details-specs p {
-  display: flex;
-  justify-content: space-between;
-  margin: 0 0 12px;
-  padding-bottom: 12px;
-  font-size: 14px;
-  border-bottom: 1px solid #e2e6e9;
-
-  span {
-    color: #89939a;
-  }
-
-  strong {
-    color: #313237;
-  }
-}
-
 .breadcrumbs a {
   color: inherit;
-}
-
-.back-button {
-  padding: 8px 16px;
-  margin-bottom: 16px;
-  cursor: pointer;
-  color: #313237;
-  background: #fff;
-  border: 1px solid #e2e6ee;
-  border-radius: 4px;
-}
-
-.back-button:hover {
-  border-color: #313237;
-}
-
-.select-title {
-  margin: 16px 0 8px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  color: #89939a;
-}
-
-.price-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 24px 0 0;
-}
-
-.price-current {
-  margin: 0;
-  font-size: 32px;
-  font-weight: 800;
-  line-height: 1.2;
-  color: #313237;
-}
-
-.price-old {
-  margin: 0;
-  font-size: 22px;
-  font-weight: 600;
-  color: #89939a;
-}
-
-.main-specs {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid #e2e6e9;
-}
-
-.spec-line {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 14px;
-
-  span:first-child {
-    color: #89939a;
-  }
-
-  span:last-child {
-    color: #313237;
-    font-weight: 600;
-    text-align: right;
-  }
-}
-
-.radio-option {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-right: 16px;
-  cursor: pointer;
-}
-
-.radio-option input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-.radio-control {
-  position: relative;
-  width: 16px;
-  height: 16px;
-  border: 1px solid #b4bdc3;
-  border-radius: 50%;
-}
-
-.radio-option input:checked+.radio-control {
-  border-color: #313237;
-}
-
-.radio-option input:checked+.radio-control::after {
-  content: '';
-  position: absolute;
-  inset: 3px;
-  background: #313237;
-  border-radius: 50%;
 }
 
 .not-found {
@@ -492,82 +346,52 @@ a {
   }
 }
 
-.details-actions {
-  display: grid;
-  grid-template-columns: 1fr 48px;
-  gap: 8px;
-  margin-top: 24px;
-
-  .add-to-cart {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 48px;
-    padding: 0 16px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 700;
-    color: #fff;
-    background: #313237;
-    border: 1px solid #313237;
-    transition: background-color 0.3s ease;
-
-    &:disabled {
-      cursor: not-allowed;
-    }
-
-    &:hover:not(:disabled) {
-      background-color: #0f1121;
-    }
-  }
-
-  .details-favorite {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 48px;
-    font-size: 22px;
-    color: #313237;
-    cursor: pointer;
-    background: #fff;
-    border: 1px solid #b4bdc3;
-    transition: border-color 0.3s ease;
-
-    &:hover {
-      border-color: #313237;
-    }
-  }
-
-  .details-favorite-active {
-    color: #eb5757;
-  }
-}
-
 .slider {
-  position: relative;
   display: grid;
-  grid-template-columns: 48px 1fr 48px;
-  align-items: center;
+  grid-template-columns: 32px 1fr 32px;
+  gap: 16px;
+  align-items: stretch;
 }
 
-.slider>img {
+.slider__viewport {
+  position: relative;
+  overflow: hidden;
+  height: 400px;
+}
+
+.slider__track {
+  display: flex;
+  height: 100%;
+  transition: transform 0.5s ease;
+}
+
+.slider__image {
+  display: block;
+  flex: 0 0 100%;
   width: 100%;
-  max-height: 360px;
+  height: 400px;
   object-fit: cover;
 }
 
-.slider>button {
-  height: 56px;
-  color: #fff;
-  font-size: 32px;
+.slider__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  color: #313237;
   cursor: pointer;
-  background: #313237;
-  border: 0;
+  background: #fafbfc;
+  border: 1px solid #e2e6e9;
+  transition: border-color 0.3s ease;
+
+  &:hover {
+    border-color: #313237;
+  }
 }
 
 .dots {
-  display: flex;
   grid-column: 1 / -1;
+  display: flex;
   justify-content: center;
   gap: 8px;
   padding: 12px;
@@ -591,7 +415,7 @@ a {
 }
 
 .home__section-title {
-  margin: 0 0 24px;
+  margin: 0;
   font-size: 32px;
   font-weight: 800;
   line-height: 1.2;
@@ -601,6 +425,14 @@ a {
 
 .home__error {
   color: #e0392b;
+}
+
+.section-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 /* ---- Categories ---- */
@@ -701,16 +533,33 @@ a {
   }
 }
 
-@media (max-width: 600px) {
-  .details {
-    grid-template-columns: 1fr;
-  }
+@media (max-width: 639px) {
 
   .home__section-title {
     font-size: 24px;
   }
 
-  .slider {
-    grid-template-columns: 40px 1fr 40px;
+  .slider__viewport {
+    height: 320px;
   }
+
+  .slider__image {
+    height: 320px;
+  }
+
+  .slider__button {
+    height: 320px;
+  }
+}
+
+/* Kept at the end of the file so stylelint's no-descending-specificity rule
+   sees these after every lower-specificity "… button" selector above. */
+.pagination button:hover {
+  border-color: #313237;
+}
+
+.pagination button:disabled {
+  color: #b4bdc3;
+  cursor: default;
+  border-color: #e2e6ee;
 }

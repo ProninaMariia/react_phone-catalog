@@ -1,21 +1,35 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import type { ProductDetails } from '../../types/ProductDetails';
+import type { Category, Product } from '../../types/Product';
 import {
   getProductDetails,
   getProducts,
   getSuggestedProducts,
 } from '../../api/products';
+import { Breadcrumbs } from '../shared/components/Breadcrumbs';
 import { Loader } from '../shared/components/Loader';
-import { ProductsList } from '../shared/components/ProductsList';
-import type { Product } from '../../types/Product';
+import { ProductsSlider } from '../shared/components/ProductsSlider';
+import {
+  ArrowLeftIcon,
+  HeartIcon,
+  HeartFilledIcon,
+} from '../shared/components/Icons/Icons';
 import { useCart } from '../shared/context/CartContext';
 import { useFavorites } from '../shared/context/FavoritesContext';
+import { getSwatchColor } from './colors';
+import styles from './ProductDetailsPage.module.scss';
+
+const categoryLabels: Record<Category, string> = {
+  phones: 'Phones',
+  tablets: 'Tablets',
+  accessories: 'Accessories',
+};
 
 export const ProductDetailsPage = () => {
   const { productId } = useParams<{ productId: string }>();
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const { addToCart, isInCart } = useCart();
   const { toggleFavorite, isFavorite } = useFavorites();
   const [product, setProduct] = useState<ProductDetails | null>(null);
   const [shortProduct, setShortProduct] = useState<Product | null>(null);
@@ -30,13 +44,17 @@ export const ProductDetailsPage = () => {
       return;
     }
 
+    // Arriving from "You may also like" must not keep the previous scroll.
+    window.scrollTo({ top: 0 });
     setIsLoading(true);
+
     Promise.all([getProductDetails(productId), getProducts()])
       .then(([found, allProducts]) => {
         setProduct(found);
         setShortProduct(
           allProducts.find(item => item.itemId === productId) ?? null,
         );
+
         if (found) {
           setImage(found.images[0]);
           setColor(found.color);
@@ -47,6 +65,7 @@ export const ProductDetailsPage = () => {
       .catch(() => setProduct(null))
       .finally(() => setIsLoading(false));
   }, [productId]);
+
   if (isLoading) {
     return <Loader />;
   }
@@ -54,176 +73,240 @@ export const ProductDetailsPage = () => {
   if (!product) {
     return (
       <section className="page">
-        <p>Product was not found</p>
+        <p className="page__empty">Product was not found</p>
       </section>
     );
   }
 
   const imageUrl = (path: string) => `${import.meta.env.BASE_URL}${path}`;
+  const inCart = isInCart(product.id);
+  const favorite = isFavorite(product.id);
 
   const handleAddToCart = () => {
-    if (!shortProduct) {
-      return;
+    if (shortProduct) {
+      addToCart(shortProduct);
     }
-
-    addToCart(shortProduct);
   };
+
+  const mainSpecs: [string, string][] = [
+    ['Screen', product.screen],
+    ['Resolution', product.resolution],
+    ['Processor', product.processor],
+    ['RAM', product.ram],
+  ];
+
+  const techSpecs: [string, string][] = [...mainSpecs];
+
+  techSpecs.push(['Built in memory', product.capacity]);
+
+  if (product.camera) {
+    techSpecs.push(['Camera', product.camera]);
+  }
+
+  if (product.zoom) {
+    techSpecs.push(['Zoom', product.zoom]);
+  }
+
+  if (product.cell.length) {
+    techSpecs.push(['Cell', product.cell.join(', ')]);
+  }
 
   return (
     <section className="page">
-      <p className="breadcrumbs">
-        <Link to="/">Home</Link> /{' '}
-        <Link to={`/${product.category}`}>{product.category}</Link> /{' '}
-        {product.name}
-      </p>
+      <Breadcrumbs
+        items={[
+          {
+            label: categoryLabels[product.category],
+            to: `/${product.category}`,
+          },
+          { label: product.name },
+        ]}
+      />
+
       <button
         type="button"
-        className="back-button"
+        className={styles.back}
         onClick={() => navigate(-1)}
       >
+        <ArrowLeftIcon size={12} />
         Back
       </button>
+
       <h1 className="page__title">{product.name}</h1>
-      <div className="details">
-        <div>
-          <img
-            className="main-image"
-            src={imageUrl(image)}
-            alt={product.name}
-          />
-          <div className="thumbnails">
-            {product.images.map(src => (
-              <button type="button" key={src} onClick={() => setImage(src)}>
-                <img src={imageUrl(src)} alt="" />
-              </button>
-            ))}
-          </div>
-        </div>
-        <div>
-          <p className="select-title">Available colors</p>
-          {product.colorsAvailable.map(value => (
-            <label className="radio-option" key={value}>
-              <input
-                type="radio"
-                name="color"
-                checked={color === value}
-                onChange={() => setColor(value)}
-              />
-              <span className="radio-control" />
-              {value}
-            </label>
-          ))}
-          <p className="select-title">Select capacity</p>
-          {product.capacityAvailable.map(value => (
-            <label className="radio-option" key={value}>
-              <input
-                type="radio"
-                name="capacity"
-                checked={capacity === value}
-                onChange={() => setCapacity(value)}
-              />
-              <span className="radio-control" />
-              {value}
-            </label>
-          ))}
 
-          <div className="price-row">
-            <h2 className="price-current">${product.priceDiscount}</h2>
-            <del className="price-old">${product.priceRegular}</del>
-          </div>
-
-          <div className="main-specs">
-            <div className="spec-line">
-              <span>Screen</span>
-              <span>{product.screen}</span>
-            </div>
-            <div className="spec-line">
-              <span>Resolution</span>
-              <span>{product.resolution}</span>
-            </div>
-            <div className="spec-line">
-              <span>Processor</span>
-              <span>{product.processor}</span>
-            </div>
-            <div className="spec-line">
-              <span>RAM</span>
-              <span>{product.ram}</span>
-            </div>
-          </div>
-
-          <div className="details-actions">
+      <div className={styles.main}>
+        <div className={styles.thumbnails}>
+          {product.images.map(src => (
             <button
               type="button"
-              className="add-to-cart"
-              disabled={!shortProduct}
+              key={src}
+              className={
+                src === image
+                  ? `${styles.thumb} ${styles.thumbActive}`
+                  : styles.thumb
+              }
+              aria-label="Show this picture"
+              aria-pressed={src === image}
+              onClick={() => setImage(src)}
+            >
+              <img src={imageUrl(src)} alt="" />
+            </button>
+          ))}
+        </div>
+
+        <div className={styles.mainImage}>
+          <img src={imageUrl(image)} alt={product.name} />
+        </div>
+
+        <div className={styles.options}>
+          <div className={styles.optionsHead}>
+            <p className={styles.optionLabel}>Available colors</p>
+            {shortProduct && <p className={styles.id}>ID: {shortProduct.id}</p>}
+          </div>
+
+          <div className={styles.colors}>
+            {product.colorsAvailable.map(value => (
+              <label
+                key={value}
+                className={
+                  color === value
+                    ? `${styles.color} ${styles.colorActive}`
+                    : styles.color
+                }
+              >
+                <input
+                  type="radio"
+                  name="color"
+                  value={value}
+                  checked={color === value}
+                  className="visually-hidden"
+                  onChange={() => setColor(value)}
+                />
+                <span
+                  className={styles.swatch}
+                  style={{ backgroundColor: getSwatchColor(value) }}
+                />
+                <span className="visually-hidden">{value}</span>
+              </label>
+            ))}
+          </div>
+
+          <div className={styles.divider} />
+
+          <p className={styles.optionLabel}>Select capacity</p>
+
+          <div className={styles.capacities}>
+            {product.capacityAvailable.map(value => (
+              <label
+                key={value}
+                className={
+                  capacity === value
+                    ? `${styles.capacity} ${styles.capacityActive}`
+                    : styles.capacity
+                }
+              >
+                <input
+                  type="radio"
+                  name="capacity"
+                  value={value}
+                  checked={capacity === value}
+                  className="visually-hidden"
+                  onChange={() => setCapacity(value)}
+                />
+                {value}
+              </label>
+            ))}
+          </div>
+
+          <div className={styles.divider} />
+
+          <p className={styles.priceRow}>
+            <span className={styles.priceCurrent}>
+              ${product.priceDiscount}
+            </span>
+            {product.priceRegular !== product.priceDiscount && (
+              <span className={styles.priceOld}>${product.priceRegular}</span>
+            )}
+          </p>
+
+          <div className={styles.actions}>
+            <button
+              type="button"
+              className={
+                inCart
+                  ? `${styles.addToCart} ${styles.addedToCart}`
+                  : styles.addToCart
+              }
+              disabled={!shortProduct || inCart}
               onClick={handleAddToCart}
             >
-              Add to cart
+              {inCart ? 'Added to cart' : 'Add to cart'}
             </button>
+
             {shortProduct && (
               <button
                 type="button"
-                className={`details-favorite ${
-                  isFavorite(shortProduct.itemId)
-                    ? 'details-favorite-active'
-                    : ''
-                }`}
+                className={
+                  favorite
+                    ? `${styles.favorite} ${styles.favoriteActive}`
+                    : styles.favorite
+                }
                 aria-label="Toggle favorite"
-                aria-pressed={isFavorite(shortProduct.itemId)}
+                aria-pressed={favorite}
                 onClick={() => toggleFavorite(shortProduct)}
               >
-                {isFavorite(shortProduct.itemId) ? '♥' : '♡'}
+                {favorite ? (
+                  <HeartFilledIcon size={16} />
+                ) : (
+                  <HeartIcon size={16} />
+                )}
               </button>
             )}
           </div>
+
+          <dl className={styles.shortSpecs}>
+            {mainSpecs.map(([label, value]) => (
+              <div className={styles.specRow} key={label}>
+                <dt>{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </div>
-      <section className="details-section details-about">
-        <h2>About</h2>
-        {product.description.map(block => (
-          <article key={block.title}>
-            <h3>{block.title}</h3>
-            {block.text.map(text => (
-              <p key={text}>{text}</p>
-            ))}
-          </article>
-        ))}
-      </section>
-      <section className="details-section details-specs">
-        <h2>Tech specs</h2>
-        <p>
-          <span>Screen</span> <strong>{product.screen}</strong>
-        </p>
-        <p>
-          <span>Resolution</span> <strong>{product.resolution}</strong>
-        </p>
-        <p>
-          <span>Processor</span> <strong>{product.processor}</strong>
-        </p>
-        <p>
-          <span>RAM</span> <strong>{product.ram}</strong>
-        </p>
-        {product.camera && (
-          <p>
-            <span>Camera</span> <strong>{product.camera}</strong>
-          </p>
-        )}
-        {product.zoom && (
-          <p>
-            <span>Zoom</span> <strong>{product.zoom}</strong>
-          </p>
-        )}
-        {product.cell.length > 0 && (
-          <p>
-            <span>Cell</span> <strong>{product.cell.join(', ')}</strong>
-          </p>
-        )}
-      </section>
-      {suggested.length > 0 && (
-        <section>
-          <h2>You may also like</h2>
-          <ProductsList products={suggested} />
+
+      <div className={styles.info}>
+        <section className={styles.about}>
+          <h2 className={styles.sectionTitle}>About</h2>
+          <div className={styles.divider} />
+
+          {product.description.map(block => (
+            <article key={block.title}>
+              <h3>{block.title}</h3>
+              {block.text.map(text => (
+                <p key={text}>{text}</p>
+              ))}
+            </article>
+          ))}
         </section>
+
+        <section className={styles.tech}>
+          <h2 className={styles.sectionTitle}>Tech specs</h2>
+          <div className={styles.divider} />
+
+          <dl className={styles.techList}>
+            {techSpecs.map(([label, value]) => (
+              <div className={styles.specRow} key={label}>
+                <dt>{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      </div>
+
+      {suggested.length > 0 && (
+        <ProductsSlider title="You may also like" products={suggested} />
       )}
     </section>
   );

@@ -2,13 +2,16 @@ import type { Product } from '../../../../types/Product';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useFavorites } from '../../context/FavoritesContext';
+import { HeartIcon, HeartFilledIcon } from '../Icons/Icons';
 import styles from './ProductCard.module.scss';
 
 type Props = {
   product: Product;
+  /** Brand new models are shown at full price, without an old price. */
+  withDiscount?: boolean;
 };
 
-export const ProductCard = ({ product }: Props) => {
+export const ProductCard = ({ product, withDiscount = true }: Props) => {
   const { addToCart, isInCart } = useCart();
   const { toggleFavorite, isFavorite } = useFavorites();
   const inCart = isInCart(product.itemId);
@@ -27,8 +30,10 @@ export const ProductCard = ({ product }: Props) => {
       </h2>
 
       <p className={styles.priceRow}>
-        <strong>${product.price}</strong>
-        {product.fullPrice !== product.price && <del>${product.fullPrice}</del>}
+        <strong>${withDiscount ? product.price : product.fullPrice}</strong>
+        {withDiscount && product.fullPrice !== product.price && (
+          <del>${product.fullPrice}</del>
+        )}
       </p>
 
       <div className={styles.divider} />
@@ -66,7 +71,11 @@ export const ProductCard = ({ product }: Props) => {
           aria-pressed={isFavorite(product.itemId)}
           onClick={() => toggleFavorite(product)}
         >
-          {isFavorite(product.itemId) ? '♥' : '♡'}
+          {isFavorite(product.itemId) ? (
+            <HeartFilledIcon size={16} />
+          ) : (
+            <HeartIcon size={16} />
+          )}
         </button>
       </div>
     </article>
