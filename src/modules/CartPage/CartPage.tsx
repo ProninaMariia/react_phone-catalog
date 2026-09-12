@@ -32,6 +32,7 @@ export const CartPage = () => {
           <img
             src={`${import.meta.env.BASE_URL}img/cart-is-empty.png`}
             alt="Cart is empty"
+            loading="lazy"
           />
           <p>Your cart is empty</p>
         </div>
@@ -52,6 +53,7 @@ export const CartPage = () => {
                   src={`${import.meta.env.BASE_URL}${product.image}`}
                   alt={product.name}
                   className="cart-item__image"
+                  loading="lazy"
                 />
                 <Link
                   to={`/product/${product.itemId}`}

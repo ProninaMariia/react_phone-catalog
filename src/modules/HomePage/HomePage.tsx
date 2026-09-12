@@ -11,15 +11,15 @@ import {
 
 const banners = [
   {
-    src: 'img/banner-main.png',
+    src: 'img/banner-main.webp',
     alt: 'iPhone 14 Pro is now available in our store',
   },
   {
-    src: 'img/banner-slide-2.png',
+    src: 'img/banner-slide-2.webp',
     alt: 'iPhone 11 in every colour',
   },
   {
-    src: 'img/banner-slide-3.png',
+    src: 'img/banner-slide-3.webp',
     alt: 'Cases, wallets and MagSafe accessories',
   },
 ];
@@ -29,15 +29,15 @@ const SLIDE_INTERVAL = 5000;
 const categoryMeta: Record<string, { title: string; image: string }> = {
   phones: {
     title: 'Mobile phones',
-    image: 'img/category-phones.png',
+    image: 'img/category-phones.webp',
   },
   tablets: {
     title: 'Tablets',
-    image: 'img/category-tablets.png',
+    image: 'img/category-tablets.webp',
   },
   accessories: {
     title: 'Accessories',
-    image: 'img/category-accessories.png',
+    image: 'img/category-accessories.webp',
   },
 };
 
@@ -202,6 +202,7 @@ export const HomePage = () => {
                     src={`${import.meta.env.BASE_URL}${meta.image}`}
                     alt={meta.title}
                     className="category-card__image"
+                    loading="lazy"
                   />
                 </div>
                 <h3 className="category-card__title">{meta.title}</h3>

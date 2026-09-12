@@ -22,6 +22,7 @@ export const ProductCard = ({ product, withDiscount = true }: Props) => {
         <img
           src={`${import.meta.env.BASE_URL}${product.image}`}
           alt={product.name}
+          loading="lazy"
         />
       </Link>
 

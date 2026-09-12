@@ -149,7 +149,7 @@ export const ProductDetailsPage = () => {
               aria-pressed={src === image}
               onClick={() => setImage(src)}
             >
-              <img src={imageUrl(src)} alt="" />
+              <img src={imageUrl(src)} alt="" loading="lazy" />
             </button>
           ))}
         </div>
